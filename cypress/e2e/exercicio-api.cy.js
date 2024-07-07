@@ -36,9 +36,9 @@ describe('Testes da Funcionalidade Usuários', () => {
         administrador: "true"
       },
 
-    }).then((response) => {
-      expect(response.status).to.equal(201)
-      expect(response.body.message).to.equal('Cadastro realizado com sucesso')
+    }).then((res) => {
+      expect(res.status).to.equal(201)
+      expect(res.body.message).to.equal('Cadastro realizado com sucesso')
     })
   });
 
@@ -55,37 +55,47 @@ describe('Testes da Funcionalidade Usuários', () => {
   });
 
   it('Deve editar um usuário previamente cadastrado', () => {
-    let id = "BD5IkIOfL9FEKRjU";
-    let usuario = faker.name.firstName();
+    let nome = faker.name.firstName();
     let email = faker.internet.email();
+    cy.cadastrarUsuario(nome, email)
+      .then(res => {
+        let id = res.body._id
+        cy.api({
+          method: 'PUT',
+          url: `usuarios/${id}`,
+          body:
+          {
+            nome: nome,
+            email: email,
+            password: "teste",
+            administrador: "true",
+          }
+        }).then(res => {
+          expect(res.status).to.eq(200)
+          expect(res.body.message).to.equal('Registro alterado com sucesso')
+        })
+      })
+  })
 
-    cy.api({
-      method: 'PUT',
-      url: `usuarios/${id}`,
-      body:
-      {
-        nome: usuario,
-        email: email,
-        password: "teste",
-        administrador: "true",
-      }
-    }).then(res => {
-      expect(res.status).to.eq(200)
-      expect(res.body.message).to.equal('Registro alterado com sucesso')
-    })
-  });
 
   it('Deve deletar um usuário previamente cadastrado', () => {
-    let id = "yk7Eq8IAZqmtOzWQ";
-    cy.api({
-      method: 'DELETE',
-      url: `usuarios/${id}`,
-    }).then(res => {
-      expect(res.body.message).to.equal('Registro excluído com sucesso')
-      expect(res.status).to.equal(200)
-    })
+    let nome = faker.name.firstName();
+    let email = faker.internet.email();
+    cy.cadastrarUsuario(nome, email)
+      .then(res => {
+        let id = res.body._id
+        cy.api({
+          method: 'DELETE',
+          url: `usuarios/${id}`,
+        }).then(res => {
+          expect(res.body.message).to.equal('Registro excluído com sucesso')
+          expect(res.status).to.equal(200)
+
+        })
+      })
   })
-});
+})
+
 
 
 
